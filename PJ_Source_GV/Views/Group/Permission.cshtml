@@ -1,0 +1,454 @@
+﻿@using PJ_Source_GV.Areas.API.Models
+@using PJ_Source_GV.Caption
+@using System.Security.Claims;
+@using Microsoft.AspNetCore.Localization
+
+@{
+    ViewData["Title"] = "Quản lý quyền nhóm";
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "vi";
+    var isVietnamese = currentCulture == "vi";
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card card-custom gutter-b">
+            <div class="card-header">
+                <h4 class="card-title">
+                    Quản lý quyền nhóm
+                </h4>
+            </div>
+            <!--begin::Form-->
+            <form class="form">
+                <div class="card-body">
+            <div class="form-group row">
+                <label class="col-form-label text-right col-lg-3 col-sm-12">Trang</label>
+                <div class="col-lg-6 ">
+                    <div class="form-group d-none">
+                        <label>group id</label>
+                        <input type="text" class="form-control hidden" id="group_id" name="id" value="@ViewData["group_id"]" />
+                    </div>
+                    @*<div class="input-group">
+                        <input type="text" class="form-control" id="selMember" name="selMember" placeholder="Nhập email phân quyền" required />
+                        <div class="input-group-append"><span class="input-group-text">@@tdtu.edu.vn</span></div>
+                    </div>*@
+
+                    <div class="form-group">
+                        @*<label class="col-md-3 control-label">@SharedLocalizer["Page"]: </label>*@
+                        <div class="col-lg-12">
+                            <select id="selPage" name="selPage" class="form-control select2">
+                                @{
+                                    var tontai = 0;
+                                    foreach (var p in ViewData["page"] as List<Page>)
+                                    {
+                                        tontai = 0;
+                                        if (p.alias == "page")
+                                        {
+                                            if (User.IsInRole("page_view"))
+                                            {
+                                                foreach (var item in ViewData["permissions"] as List<Permission>)
+                                                {
+                                                    if (p.id == item.page_id)
+                                                    {
+                                                        tontai = 1;
+                                                    }
+                                                }
+                                                if (tontai == 0)
+                                                {
+                                                    <option value="@p.id">@p.name</option>}
+                                            }
+
+                                        }
+                                        else
+                                        {
+                                            foreach (var item in ViewData["permissions"] as List<Permission>)
+                                            {
+                                                if (p.id == item.page_id)
+                                                {
+                                                    tontai = 1;
+                                                }
+                                            }
+                                            if (tontai == 0)
+                                            {
+                                                <option value="@p.id">@p.name</option>}
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                        @*<div class="col-md-3">
+                            <button id="btnSave" type="button" class="btn btn-primary">@SharedLocalizer["Save"]</button>
+                        </div>*@
+                    </div>
+                </div>
+                <div class="col-lg-2">
+                    <button type="button" class="btn btn-icon btn-sm btn-primary btnAdd" data-toggle="tooltip" title="Thêm">
+                        <i class="la la-plus"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="row">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <button type="button" class="btn btn-success btn-sm" id="btnExportExcel">
+                           Xuất Excel
+                        </button>
+                    </div>
+                    <!--begin: Datatable-->
+                    <table class="table table-bordered table-checkable dataTable no-footer dtr-inline" id="dt_permission">
+                        <thead>
+                            <tr>
+                                <th style="display:none;"></th>
+                                <th style="display:none;"></th>
+                                <th style="display:none;"></th>
+                                <th style="display:none;"></th>
+                                <th>Tên trang</th>
+                                @foreach (var func in ViewData["functions"] as Dictionary<string, int>)
+                                {
+                                    <th>@func.Key</th>
+                                }
+
+                            </tr>
+                        </thead>
+                        <tbody id="permission_body">
+                            @{ var stt = 0;}
+                            @foreach (var permission in ViewData["permissions"] as List<Permission>)
+                            {
+                                int per = permission.permission;
+                                <tr>
+                                    <td style="display:none;">@permission.id</td>
+                                    <td style="display:none;" id="group_@(permission.id)">@permission.group_id</td>
+                                    <td style="display:none;" id="page_@(permission.id)">@permission.page_id</td>
+                                    <td style="display:none;" id="per_@(permission.id)">@permission.permission</td>
+                                    <td><b>@permission.page_name</b></td>
+                                    @{
+                                        var currentPage = (ViewData["page"] as List<Page>)?.FirstOrDefault(p => p.id == permission.page_id);
+                                    }
+                                    @foreach (var func in ViewData["functions"] as Dictionary<string, int>)
+                                    {
+                                        var code = func.Value;
+                                        if (currentPage != null)
+                                        {
+                                            if ((code & currentPage.permission) != code)
+                                            {
+                                                <td>
+                                                    <div class="controls">
+                                                        <label class="checkbox checkbox-disabled checkbox-lg">
+                                                            <input class="@func.Key" name="@func.Key" value="@func.Value" type="checkbox" disabled>
+                                                            <span></span>
+                                                        </label>
+                                                    </div>
+                                                </td>
+                                            }
+                                            else
+                                            {
+                                                <td>
+                                                    <div class="controls" data-title="@(permission.id.ToString()+'-'+func.Value.ToString())">
+                                                        <label class="checkbox checkbox-lg">
+                                                            <input class="@func.Key icheck" name="@func.Key" value="@func.Value" type="checkbox"/>
+                                                            <span></span>
+                                                        </label>
+                                                    </div>
+                                                </td>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <td>
+                                                <div class="controls">
+                                                    <label class="checkbox checkbox-disabled checkbox-lg">
+                                                        <input class="@func.Key" name="@func.Key" value="@func.Value" type="checkbox" disabled>
+                                                        <span></span>
+                                                    </label>
+                                                </div>
+                                            </td>
+                                        }
+                                    }
+                                </tr>
+                            }
+
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th style="display:none;"></th>
+                                <th style="display:none;"></th>
+                                <th style="display:none;"></th>
+                                <th style="display:none;"></th>
+                                <th><input type="text" class="form-control form-control-sm" placeholder="@(isVietnamese ? "Tìm kiếm..." : "Search...")" /></th>
+                                @foreach (var func in ViewData["functions"] as Dictionary<string, int>)
+                                {
+                                    <th><input type="text" class="form-control form-control-sm" style="display:none;" /></th>
+                                }
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <!--end: Datatable-->
+                </div>
+            </div>
+                </div>
+            </form>
+            <!--end::Form-->
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var table = null;
+    $(document).ready(function () {
+        @{
+            var funcCount = (ViewData["functions"] as Dictionary<string, int>)?.Count ?? 0;
+        }
+        var funcCount = @funcCount;
+        var currentLang = '@currentCulture';
+        
+        var dtLanguage = currentLang === 'vi' ? {
+            "sProcessing": "Đang xử lý...",
+            "sLengthMenu": "Hiển thị _MENU_ dòng",
+            "sZeroRecords": "Không tìm thấy dữ liệu",
+            "sInfo": "Hiển thị _START_ đến _END_ trong tổng số _TOTAL_ dòng",
+            "sInfoEmpty": "Hiển thị 0 đến 0 trong tổng số 0 dòng",
+            "sInfoFiltered": "(được lọc từ _MAX_ dòng)",
+            "sInfoPostFix": "",
+            "sSearch": "Tìm kiếm:",
+            "sUrl": "",
+            "oPaginate": {
+                "sFirst": "Đầu",
+                "sPrevious": "Trước",
+                "sNext": "Sau",
+                "sLast": "Cuối"
+            }
+        } : {
+            "sProcessing": "Processing...",
+            "sLengthMenu": "Show _MENU_ entries",
+            "sZeroRecords": "No matching records found",
+            "sInfo": "Showing _START_ to _END_ of _TOTAL_ entries",
+            "sInfoEmpty": "Showing 0 to 0 of 0 entries",
+            "sInfoFiltered": "(filtered from _MAX_ total entries)",
+            "sInfoPostFix": "",
+            "sSearch": "Search:",
+            "sUrl": "",
+            "oPaginate": {
+                "sFirst": "First",
+                "sPrevious": "Previous",
+                "sNext": "Next",
+                "sLast": "Last"
+            }
+        };
+        
+        var columnDefs = [
+            { visible: false, targets: [0, 1, 2, 3] },  // Hidden columns
+            { width: "250px", targets: 4 }               // Page name
+        ];
+        
+        // Add width for function columns (starting from index 5)
+        for (var i = 5; i < 5 + funcCount; i++) {
+            columnDefs.push({ width: "80px", targets: i });
+        }
+        
+        table = $('#dt_permission').DataTable({
+            language: dtLanguage,
+            ordering: false,
+            responsive: true,
+            paging: false,
+            dom: "t",
+            columnDefs: columnDefs,
+            initComplete: function () {
+                // Apply the search
+                this.api().columns().every(function (index) {
+                    var that = this;
+                    var footerInput = $('input', this.footer());
+                    if (footerInput.length > 0 && footerInput.is(':visible')) {
+                        footerInput.on('keyup change clear', function () {
+                            if (that.search() !== this.value) {
+                                that.search(this.value).draw();
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+        $('#selPage').select2({
+            placeholder: "Select a state"
+        });
+        
+        // Initialize tooltips
+        $('[data-toggle="tooltip"]').tooltip();
+        
+        // Export to Excel
+        $('#btnExportExcel').click(function() {
+            var table = $('#dt_permission').DataTable();
+            var headers = [];
+            var visibleColumnIndexes = [];
+            
+            // Get headers (skip hidden columns)
+            $('#dt_permission thead th').each(function(index) {
+                if ($(this).css('display') !== 'none' && !$(this).hasClass('hidden') && !$(this).attr('hidden')) {
+                    var text = $(this).text().trim();
+                    if (text) {
+                        headers.push(text);
+                        visibleColumnIndexes.push(index);
+                    }
+                }
+            });
+            
+            // Create CSV content
+            var csvContent = headers.join(',') + '\n';
+            
+            // Get all data (including filtered)
+            table.rows({ search: 'applied' }).every(function() {
+                var rowData = [];
+                var cells = this.nodes().to$().find('td');
+                visibleColumnIndexes.forEach(function(colIndex) {
+                    var cell = cells.eq(colIndex);
+                    if (cell.length > 0 && cell.css('display') !== 'none') {
+                        var cellText = cell.text().trim().replace(/"/g, '""');
+                        rowData.push('"' + cellText + '"');
+                    }
+                });
+                csvContent += rowData.join(',') + '\n';
+            });
+            
+            // Create blob and download
+            var blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            var link = document.createElement('a');
+            var url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'DanhSachQuyen_' + new Date().getTime() + '.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    });
+
+    $(document).ready(function () {
+        // check permission when page load
+        var theBody = $('#permission_body').children();
+        for (var r = 0; r < theBody.length; r++) {
+            var theTR = $(theBody[r]);
+           
+            if (theTR.children().length > 4) {
+                var per = theTR.children()[3].textContent;
+
+                for (var i = 15; i > 4; i--) {
+                    //var tdVal = theTR.children()[i].children[0].children[0].getAttribute('value');
+                    var tdVal = $(theTR.children()[i].children[0].children[0]).find('input[type="checkbox"]').val();
+                
+                    
+                    console.log('i: ',i);
+                    console.log('per: ',per);
+                    console.log('tdVal: ',tdVal);
+                    console.log('Number: ', Number(per - tdVal));
+                    console.log("--------------------------");
+
+                    
+                    if (per - tdVal >= 0) {
+                        //var ischeck = theTR.children()[i].children[0].children[0];
+                        var ischeck = $(theTR.children()[i].children[0].children[0]).find('input[type="checkbox"]');
+                   
+                        //$(ischeck).iCheck('check');
+                        //$(ischeck).iCheck('update');
+                        $(ischeck).prop('checked', true);
+                        per -= tdVal;
+                    }
+                }
+            }
+        }
+
+        $(document).on('change', '#permission_body input[type="checkbox"]', function () {
+            var arr = $(this).parent().parent().attr('data-title').split('-');
+            console.log($(this).parent().parent().attr('data-title'));
+       
+            var id = arr[0];
+            var permission = arr[1];
+            var group_id = $("#group_" + id.toString()).text();
+            var page_id = $("#page_" + id.toString()).text();
+            //var newPermission;
+
+            //$(this).iCheck('check');
+            //$(this).iCheck('update');
+            
+            console.log(permission);
+
+            if ($(this).is(':checked')) {
+                console.log('checked');
+                permission = Number($("#per_" + id.toString()).text()) + Number($(this).val());
+                $(this).prop('checked', true);
+
+
+            } else {
+                console.log('ucheck');
+                permission = Number($("#per_" + id.toString()).text()) - Number($(this).val());
+                $(this).prop('checked', false);
+
+            } 
+            $("#per_" + id).html(permission);
+
+            LuuQuyen(id, group_id, page_id, permission);
+        });
+
+        $(document).on('ifUnchecked', '#permission_body input[type="checkbox"]', function () {
+            //var arr = $(this).parent().parent().data('title').split('-');
+            //var id = arr[0];
+            //var permission = arr[1];
+            //return;
+            //console.log(arr);
+            //console.log(permission);
+
+            //var group_id = $("#group_" + id.toString()).text();
+            //var page_id = $("#page_" + id.toString()).text();
+            //permission = Number($("#per_" + id.toString()).text()) - Number($(this).val());
+            //$("#per_" + id).html(permission);
+            ////$(this).iCheck('uncheck');
+            ////$(this).iCheck('update');
+
+            //$(ischeck).prop('checked', false);
+
+            //console.log('uncheck');
+            //return;
+            //LuuQuyen(id, group_id, page_id, permission);
+        });
+
+        $('.btnAdd').click(function () {
+            var group_id = $('#group_id').val();
+            var page_id = $('#selPage').val();
+            var permission = 0;
+            $.ajax({
+                type: "post",
+                url: "/group/insert",
+                data: {
+                    group_id: group_id,
+                    page_id: page_id,
+                    permission: permission
+                },
+                success: function (result) {
+                    if (result === "Exists") {
+                        alert("@SharedLocalizer["ExistedError"]");
+                        return;
+                    }
+                    window.location.reload();
+                }
+            });
+        });
+    });
+    function LuuQuyen(id, groupid, pageid, per) {
+        $.ajax({
+            type: "post",
+            async: false,
+            url: "/API/Group/UpdatePermission",
+            data: {
+                id: id,
+                group_id: groupid,
+                page_id: pageid,
+                permission: per
+            },
+            success: function (result) {
+                toastr.success("Cập nhật dữ liệu thành công!");
+            }
+        });
+    }
+</script>
+

@@ -1,0 +1,54 @@
+﻿@model SupportDepartment
+
+<div class="card card-custom">
+    <div class="card-header">
+        <h3 class="card-title">Tạo phòng ban</h3>
+    </div>
+
+    <form asp-action="Create" method="post" class="form">
+        <div class="card-body">
+
+            <div asp-validation-summary="All"
+                 class="text-danger mb-3"></div>
+
+            <!-- Department Code -->
+            <div class="form-group">
+                <label asp-for="DepartmentCode"></label>
+                <input asp-for="DepartmentCode"
+                       class="form-control"
+                       placeholder="Nhập mã phòng ban" />
+                <span asp-validation-for="DepartmentCode"
+                      class="form-text text-danger"></span>
+            </div>
+
+            <!-- Department Name -->
+            <div class="form-group">
+                <label asp-for="DepartmentName"></label>
+                <input asp-for="DepartmentName"
+                       class="form-control"
+                       placeholder="Nhập tên phòng ban" />
+                <span asp-validation-for="DepartmentName"
+                      class="form-text text-danger"></span>
+            </div>
+
+        </div>
+
+        <div class="card-footer">
+            <button type="submit"
+                    class="btn btn-primary mr-2">
+                Submit
+            </button>
+
+            <a asp-action="Index"
+               class="btn btn-secondary">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

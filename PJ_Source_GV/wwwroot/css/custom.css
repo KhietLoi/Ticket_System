@@ -1,0 +1,49 @@
+.to_class {
+    border: 2px solid #4dd2ff;
+    padding: 3px;
+    border-radius: 10px 10px;
+    float: left;
+    margin: 5px;
+    background-color: #ffffff;
+}
+
+.my-custom-scrollbar {
+    position: relative;
+    overflow: auto;
+}
+
+.table-wrapper-scroll-y {
+    display: block;
+}
+
+.width150 {
+    width: 150px !important;
+}
+
+.width200 {
+    width: 200px !important;
+}
+
+.width300 {
+    width: 300px !important;
+}
+
+.table tbody tr.unread {
+    font-weight: bold;
+}
+
+.text-gray {
+    color: #c5c5c5;
+}
+.text-online {
+    color: #35ac19;
+}
+
+.table tbody tr {
+    cursor: pointer;
+}
+
+.modal-dialog-scrollable {
+    overflow-x: hidden;
+    overflow-y: auto;
+}

@@ -1,0 +1,14 @@
+﻿@using PJ_Source_GV.Caption
+
+@{
+    ViewData["Title"] = "Lỗi";
+}
+
+<div class="alert alert-danger">
+    Đã có lỗi xảy ra hoặc bạn chưa được cấp quyền để truy cập chức năng này
+    Vui lòng liên hệ trưởng đơn vị hoặc quản trị viên trong <b>"Thông tin phần mềm"</b> để được xử lý.
+</div>
+
+<script>
+    console.log(`@ViewBag.StackTrace`);
+</script>

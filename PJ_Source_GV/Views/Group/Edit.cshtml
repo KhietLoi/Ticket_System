@@ -1,0 +1,110 @@
+﻿@using PJ_Source_GV.Areas.API.Models
+@using PJ_Source_GV.Caption
+@using System.Security.Claims;
+
+@{
+    ViewData["Title"] = (int)ViewData["group_id"] == 0 ? "Thêm nhóm" : "Cập nhật nhóm";
+}
+
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card card-custom gutter-b">
+            <div class="card-header">
+                <h4 class="card-title">
+                    <span id="title_name">@ViewData["Title"]</span>
+                </h4>
+            </div>
+            <!--begin::Form-->
+            <form id="frmEditGroup">
+                <div class="card-body">
+                    <div class="form-group d-none">
+                        <label>group id</label>
+                        <input type="text" class="form-control hidden" id="group_id" name="id" value="@ViewData["group_id"]" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tên <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="name" name="name" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Ghi chú</label>
+                        <textarea class="form-control" id="note" name="note" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="card-footer text-right">
+                    <button type="submit" class="btn btn-success mr-2">
+                        Lưu
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="fnCancelClick()">
+                        Hủy
+                    </button>
+                </div>
+            </form>
+            <!--end::Form-->
+        </div>
+    </div>
+</div>
+
+<script>
+    if ($('#group_id').val() !== 0) {
+        var group = GetGroupByID($('#group_id').val());
+        $('#name').val(group.name);
+        $('#note').val(group.note);
+    }
+    function GetGroupByID(id) {
+        var item;
+        $.ajax({
+            url: "/API/Group/GetGroup/",
+            data: {
+                id: id
+            },
+            async: false,
+            success: function (i, result) {
+                item = i;
+            }
+        });
+        return item;
+    }
+
+    $('#frmEditGroup').submit(function () {
+        event.preventDefault();
+        var form = $('#frmEditGroup').serialize();
+        var groupID = $('#group_id').val();
+        if (groupID !== "0") {
+            $.ajax({
+                url: "/API/Group/UpdateGroup/",
+                type: "post",
+                data: form,
+                dataType: 'json',
+                success: function (data) {
+                    if (data) {
+                        
+                        toastr.success("Cập nhật dữ liệu thành công!");
+                        window.location.href = "/group";
+                    }
+                }
+            });
+        }
+        else {
+            $.ajax({
+                url: "/API/Group/InsertGroup/",
+                type: "post",
+                data: form,
+                dataType: 'json',
+                success: function (data) {
+                    if (data) {
+                        
+                        toastr.success("Tạo mới dữ liệu thành công!");
+                        window.location.href = "/group";
+                    }
+
+                }
+            });
+        }
+    });
+
+    function fnCancelClick() {
+        window.location.href = "/group";
+    }
+</script>

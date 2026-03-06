@@ -1,0 +1,17 @@
+.required-field:after {
+    content: " *";
+    color: red;
+    font-weight: bold;
+}
+
+.input-group .required-field:after {
+    content: " *";
+    color: red;
+    font-weight: bold;
+    position: relative;
+    z-index: 1;
+}
+
+.text-danger {
+    color: #dc3545 !important;
+} 

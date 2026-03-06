@@ -1,0 +1,99 @@
+﻿@using Microsoft.AspNetCore.Http;
+@{
+    ViewData["Title"] = "Thông tin phần mềm";
+    if (!string.IsNullOrEmpty(Context.Session.GetString("Mobile")))
+    {
+        Layout = "~/Views/Shared/_Layout_Mobile.cshtml";
+    }
+}
+
+<div class="content" style="min-height: 800px">
+    <div id="studentForm">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="tabbable">
+                    <div class="tab-content">
+                        <div id="detail" class="tab-pane fade active in">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <div class="panel panel-default" style="border-left: 2px solid; border-left-color: red">
+                                                <div class="panel-footer">
+                                                    <h4 class="panel-title">Thông tin phần mềm</h4>
+                                                </div>
+                                                <div class="panel-body">
+                                                    <div class="row">
+                                                        <div class="col-sm-12">
+                                                            <table cellspacing="0" class="table table-bordered table-detail table-striped">
+                                                                <colgroup>
+                                                                    <col style="width: 25%;">
+                                                                    <col>
+                                                                </colgroup>
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td style="font-weight:bold;">Tên</td>
+                                                                        <td class="last">
+                                                                            Website quản lý văn bản
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="font-weight:bold;">Mã</td>
+                                                                        <td class="last">
+                                                                            020
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="font-weight:bold;">Đơn vị phân quyền chức năng tổng quát</td>
+                                                                        <td class="last">
+                                                                            Phòng Tổ chức hành chính
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="font-weight:bold;">Đơn vị phân quyền chức năng văn thư</td>
+                                                                        <td class="last">
+                                                                            Trưởng đơn vị
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="font-weight:bold;">Đơn vị chịu trách nhiệm dữ liệu tài liệu nội bộ</td>
+                                                                        <td class="last">
+                                                                            Phòng Khảo thí và KĐCL
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="font-weight:bold;">Đơn vị chịu trách nhiệm dữ liệu văn bản nội bộ</td>
+                                                                        <td class="last">
+                                                                            Phòng Tổ chức hành chính
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="font-weight:bold;">Đơn vị xử lý sự cố phần mềm</td>
+                                                                        <td class="last">
+                                                                            Tổ phần mềm - Trung tâm tin học
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="font-weight:bold;">Trình duyệt hỗ trợ tốt nhất</td>
+                                                                        <td class="last">
+                                                                            <img src="~/images/compatible_firefox.png" width="25px" />&nbsp;&nbsp;<img src="~/images/compatible_chrome.gif" width="25px" />
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

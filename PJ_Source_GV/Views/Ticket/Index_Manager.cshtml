@@ -1,0 +1,76 @@
+﻿@model List<PJ_Source_GV.ViewModels.TicketDetailVM>
+
+<div class="card">
+    <div class="card-header">
+        <h3>Ticket Management</h3>
+    </div>
+
+    <div class="card-body">
+
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Ticket Code</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th>Expected Date</th>
+                    <th>Created By</th>
+                    <th width="180">Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var item in Model)
+                {
+                    <tr>
+
+                        <td>@item.TicketCode</td>
+
+                        <td>@item.Description</td>
+
+                        <td>
+
+                            @if (item.Status == PJ_Source_GV.Enums.TicketStatus.Received)
+                            {
+                                <span class="badge bg-primary">Received</span>
+                            }
+                            else if (item.Status == PJ_Source_GV.Enums.TicketStatus.Processing)
+                            {
+                                <span class="badge bg-warning">Processing</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">Completed</span>
+                            }
+
+                        </td>
+
+                        <td>
+                            @(item.ExpectedCompleteDate?.ToString("dd/MM/yyyy"))
+                        </td>
+
+                        <td>@item.CreatedByEmail</td>
+
+                        <td>
+
+                            <a href="/Ticket/Detail_Manager/@item.TicketId"
+                               class="btn btn-info btn-sm">
+                                View
+                            </a>
+
+                          
+
+
+
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+</div>

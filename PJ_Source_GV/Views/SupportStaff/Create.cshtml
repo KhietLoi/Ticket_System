@@ -1,0 +1,175 @@
+﻿@model SupportStaff
+
+<div class="card card-custom">
+    <div class="card-body px-0">
+
+        <form class="form px-7"
+              asp-action="Create"
+              method="post"
+              enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+
+            <!-- ===== SECTION TITLE ===== -->
+            <div class="row">
+                <label class="col-3"></label>
+                <div class="col-9">
+                    <h6 class="text-dark font-weight-bold mb-10">
+                        Create Support Staff:
+                    </h6>
+                </div>
+            </div>
+
+            <!-- ===== AVATAR ===== -->
+            <div class="form-group row">
+                <label class="col-form-label col-3 text-lg-right text-left">
+                    Avatar
+                </label>
+
+                <div class="col-9">
+                    <div class="image-input image-input-outline">
+
+                        <div class="image-input-wrapper"
+                             style="background-image:url('/uploads/avatar/default.png');
+                                    width:120px;
+                                    height:120px;">
+                        </div>
+
+                        <input type="file"
+                               name="Avatar"
+                               id="Avatar"
+                               class="form-control mt-3" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== FULL NAME ===== -->
+            <div class="form-group row">
+                <label class="col-form-label col-3 text-lg-right text-left">
+                    Full Name
+                </label>
+                <div class="col-9">
+                    <input asp-for="FullName"
+                           class="form-control form-control-lg form-control-solid" />
+                    <span asp-validation-for="FullName" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- ===== EMAIL ===== -->
+            <div class="form-group row">
+                <label class="col-form-label col-3 text-lg-right text-left">
+                    Email
+                </label>
+                <div class="col-9">
+                    <input asp-for="Email"
+                           class="form-control form-control-lg form-control-solid" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- ===== PHONE ===== -->
+            <div class="form-group row">
+                <label class="col-form-label col-3 text-lg-right text-left">
+                    Phone Number
+                </label>
+                <div class="col-9">
+                    <input asp-for="PhoneNumber"
+                           class="form-control form-control-lg form-control-solid" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- ===== POSITION ===== -->
+            <div class="form-group row">
+                <label class="col-form-label col-3 text-lg-right text-left">
+                    Position
+                </label>
+                <div class="col-9">
+                    <input asp-for="Position"
+                           class="form-control form-control-lg form-control-solid" />
+                    <span asp-validation-for="Position" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- ===== DATE OF BIRTH ===== -->
+            <div class="form-group row">
+                <label class="col-form-label col-3 text-lg-right text-left">
+                    Date Of Birth
+                </label>
+                <div class="col-9">
+                    <input asp-for="DateOfBirth"
+                           type="date"
+                           class="form-control form-control-lg form-control-solid" />
+                </div>
+            </div>
+
+          
+
+            <!-- ===== FOOTER ===== -->
+            <div class="card-footer px-0 pb-0">
+                <div class="row">
+                    <div class="col-3"></div>
+                    <div class="col-9">
+                        <button type="submit"
+                                class="btn btn-light-primary font-weight-bold">
+                            Create
+                        </button>
+                        <a asp-action="Index"
+                           class="btn btn-clean font-weight-bold">
+                            Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+   
+    <script>
+        $(document).ready(function () {
+
+            // ===== CLEAR VALIDATION EMAIL =====
+            $("#Email").on("input", function () {
+                $("span[data-valmsg-for='Email']")
+                    .text("")
+                    .removeClass("field-validation-error")
+                    .addClass("field-validation-valid");
+            });
+
+            // ===== CLEAR VALIDATION PHONE =====
+            $("#PhoneNumber").on("input", function () {
+                $("span[data-valmsg-for='PhoneNumber']")
+                    .text("")
+                    .removeClass("field-validation-error")
+                    .addClass("field-validation-valid");
+            });
+
+            // ===== AVATAR PREVIEW =====
+            $("#Avatar").change(function (event) {
+
+                var input = event.target;
+
+                if (input.files && input.files[0]) {
+
+                    var reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        $(".image-input-wrapper")
+                            .css("background-image", "url('" + e.target.result + "')");
+                    };
+
+                    reader.readAsDataURL(input.files[0]);
+                }
+            });
+
+        });
+    </script>
+
+
+}

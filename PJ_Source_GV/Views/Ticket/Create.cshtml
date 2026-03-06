@@ -1,0 +1,330 @@
+﻿@model PJ_Source_GV.ViewModels.TicketCreateVM
+
+@{
+    ViewData["Title"] = "Create Ticket";
+}
+
+<div class="card card-custom">
+    <div class="card-body px-0">
+
+        <form class="form px-7"
+              asp-action="Create"
+              asp-controller="Ticket"
+              method="post"
+              enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+
+            <!-- ===== TITLE ===== -->
+            <div class="row">
+                <label class="col-3"></label>
+                <div class="col-9">
+                    <h6 class="text-dark font-weight-bold mb-10">
+                        Create Ticket:
+                    </h6>
+                </div>
+            </div>
+
+            <!-- ===== DEPARTMENT ===== -->
+            <div class="form-group row">
+                <label class="col-form-label col-3 text-lg-right text-left">
+                    Department
+                </label>
+                <div class="col-9">
+                    <select asp-for="DepartmentId"
+                            id="DepartmentId"
+                            class="form-control form-control-lg form-control-solid">
+                        <option value="">-- Chọn Department --</option>
+
+                        @foreach (var item in ViewBag.Departments)
+                        {
+                            <option value="@item.DepartmentId">
+                                @item.DepartmentCode - @item.DepartmentName
+                            </option>
+                        }
+                    </select>
+                    <span asp-validation-for="DepartmentId" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- ===== TASK ===== -->
+            <div class="form-group row">
+                <label class="col-form-label col-3 text-lg-right text-left">
+                    Task
+                </label>
+                <div class="col-9">
+                    <select asp-for="TaskId"
+                            id="TaskId"
+                            class="form-control form-control-lg form-control-solid">
+                        <option value="">-- Chọn Task --</option>
+                    </select>
+                    <span asp-validation-for="TaskId" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- ===== EMAIL ===== -->
+            <div class="form-group row">
+                <label class="col-form-label col-3 text-lg-right text-left">
+                    Email
+                </label>
+                <div class="col-9">
+                    <input asp-for="CreatedByEmail"
+                           class="form-control form-control-lg form-control-solid"
+                           value="@ViewBag.Email"
+                           readonly />
+                </div>
+            </div>
+
+            <!-- ===== DESCRIPTION ===== -->
+            <div class="form-group row">
+                <label class="col-form-label col-3 text-lg-right text-left">
+                    Description
+                </label>
+                <div class="col-9">
+                    <textarea asp-for="Description"
+                              class="form-control form-control-lg form-control-solid"
+                              rows="4"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- ===== ATTACHMENT ===== -->
+            <div class="form-group row">
+                <label class="col-form-label col-3 text-lg-right text-left">
+                    Attachment
+                </label>
+                <div class="col-9">
+
+                    <input type="file"
+                           id="fileInput"
+                           name="files"
+                           multiple
+                           class="form-control form-control-lg form-control-solid" />
+
+                    <!-- Preview Area -->
+                    <div id="previewContainer" class="mt-3 d-flex flex-wrap gap-3"></div>
+
+                </div>
+            </div>
+
+            <!-- ===== FOOTER ===== -->
+            <div class="card-footer px-0 pb-0">
+                <div class="row">
+                    <div class="col-3"></div>
+                    <div class="col-9">
+
+                        <button type="submit"
+                                class="btn btn-light-primary font-weight-bold">
+                            Create
+                        </button>
+
+                        <a asp-action="Index"
+                           class="btn btn-clean font-weight-bold">
+                            Back
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function () {
+
+            const taskSelect = $("#TaskId");
+            const departmentSelect = $("#DepartmentId");
+            const submitBtn = $("button[type='submit']");
+            const fileInput = document.getElementById("fileInput");
+            const previewContainer = document.getElementById("previewContainer");
+
+            let selectedFiles = [];
+
+            const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+            const allowedTypes = [
+                "image/jpeg",
+                "image/png",
+                "application/pdf",
+                "application/msword",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            ];
+
+            // ==============================
+            // LOAD TASK BY DEPARTMENT
+            // ==============================
+            taskSelect.prop("disabled", true);
+
+            departmentSelect.change(function () {
+
+                const departmentId = $(this).val();
+
+                taskSelect.empty()
+                          .append('<option value="">-- Chọn Task --</option>')
+                          .prop("disabled", true);
+
+                if (!departmentId) return;
+
+                taskSelect.append('<option>Loading...</option>');
+
+                $.ajax({
+                    url: '/SupportTask/GetTaskByDepartment',
+                    type: 'GET',
+                    data: { departmentId: departmentId },
+                    success: function (data) {
+
+                        taskSelect.empty()
+                                  .append('<option value="">-- Chọn Task --</option>');
+
+                        if (!data || data.length === 0) {
+                            taskSelect.append('<option disabled>No task found</option>');
+                        } else {
+                            data.forEach(item => {
+                                taskSelect.append(
+                                    `<option value="${item.TaskId}">
+                                        ${item.TaskName}
+                                     </option>`
+                                );
+                            });
+                            taskSelect.prop("disabled", false);
+                        }
+                    },
+                    error: function () {
+                        alert("Có lỗi xảy ra khi load Task.");
+                    }
+                });
+            });
+
+            // ==============================
+            // FILE HANDLING (FIX REMOVE REAL FILE)
+            // ==============================
+            fileInput.addEventListener("change", function (event) {
+
+                const newFiles = Array.from(event.target.files);
+
+                newFiles.forEach(file => {
+
+                    // Validate size
+                    if (file.size > MAX_FILE_SIZE) {
+                        alert(`File ${file.name} vượt quá 5MB.`);
+                        return;
+                    }
+
+                    // Validate type
+                    if (!allowedTypes.includes(file.type)) {
+                        alert(`File ${file.name} không đúng định dạng.`);
+                        return;
+                    }
+
+                    selectedFiles.push(file);
+                });
+
+                updateInputFiles();
+                renderPreview();
+            });
+
+            function renderPreview() {
+
+                previewContainer.innerHTML = "";
+
+                selectedFiles.forEach((file, index) => {
+
+                    const wrapper = document.createElement("div");
+                    wrapper.style.margin = "10px";
+                    wrapper.style.position = "relative";
+
+                    const removeBtn = document.createElement("span");
+                    removeBtn.innerHTML = "×";
+                    removeBtn.style.cssText = `
+                        position:absolute;
+                        top:-8px;
+                        right:-8px;
+                        background:red;
+                        color:white;
+                        width:20px;
+                        height:20px;
+                        border-radius:50%;
+                        font-size:12px;
+                        display:flex;
+                        align-items:center;
+                        justify-content:center;
+                        cursor:pointer;
+                    `;
+
+                    removeBtn.addEventListener("click", function () {
+                        selectedFiles.splice(index, 1);
+                        updateInputFiles();
+                        renderPreview();
+                    });
+
+                    if (file.type.startsWith("image/")) {
+
+                        const reader = new FileReader();
+
+                        reader.onload = function (e) {
+
+                            wrapper.innerHTML = `
+                                <img src="${e.target.result}"
+                                     style="width:120px;height:120px;
+                                            object-fit:cover;
+                                            border-radius:8px;
+                                            border:1px solid #ddd;" />
+                                <div style="font-size:12px;max-width:120px;word-break:break-all;">
+                                    ${file.name}
+                                </div>
+                            `;
+
+                            wrapper.appendChild(removeBtn);
+                        };
+
+                        reader.readAsDataURL(file);
+
+                    } else {
+
+                        wrapper.innerHTML = `
+                            <div style="width:120px;height:120px;
+                                        display:flex;
+                                        align-items:center;
+                                        justify-content:center;
+                                        border:1px solid #ddd;
+                                        border-radius:8px;
+                                        background:#f8f9fa;">
+                                📄
+                            </div>
+                            <div style="font-size:12px;max-width:120px;word-break:break-all;">
+                                ${file.name}
+                            </div>
+                        `;
+
+                        wrapper.appendChild(removeBtn);
+                    }
+
+                    previewContainer.appendChild(wrapper);
+                });
+            }
+
+            function updateInputFiles() {
+
+                const dataTransfer = new DataTransfer();
+
+                selectedFiles.forEach(file => {
+                    dataTransfer.items.add(file);
+                });
+
+                fileInput.files = dataTransfer.files;
+            }
+
+            // ==============================
+            // PREVENT DOUBLE SUBMIT
+            // ==============================
+            $("form").on("submit", function () {
+                submitBtn.prop("disabled", true);
+                submitBtn.text("Creating...");
+            });
+
+        });
+    </script>
+}

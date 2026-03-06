@@ -1,0 +1,264 @@
+﻿@model SupportStaff
+
+<div class="card card-custom">
+    <div class="card-body px-0">
+
+        <!-- ===== ALERT ===== -->
+        @if (TempData["Error"] != null)
+        {
+            <div id="alertMessage" class="alert alert-danger mx-7 mt-5">
+                @TempData["Error"]
+            </div>
+        }
+
+        @if (TempData["Success"] != null)
+        {
+            <div id="alertMessage" class="alert alert-success mx-7 mt-5">
+                @TempData["Success"]
+            </div>
+        }
+
+        <form class="form px-7"
+              asp-action="Details"
+              method="post"
+              enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="StaffId" />
+
+            <!-- ===== TITLE ===== -->
+            <div class="row">
+                <label class="col-3"></label>
+                <div class="col-9">
+                    <h6 class="text-dark font-weight-bold mb-10">
+                        Staff Profile:
+                    </h6>
+                </div>
+            </div>
+
+            <!-- ===== AVATAR ===== -->
+            <div class="form-group row">
+                <label class="col-form-label col-3 text-lg-right text-left">
+                    Avatar
+                </label>
+
+                <div class="col-9">
+                    <div class="image-input image-input-outline">
+
+                        <div class="image-input-wrapper"
+                             style="background-image:url('/@Model.AvatarPath');
+                                    width:120px;
+                                    height:120px;">
+                        </div>
+
+                        <input type="file"
+                               name="Avatar"
+                               id="Avatar"
+                               class="form-control mt-3" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== FULLNAME ===== -->
+            <div class="form-group row">
+                <label class="col-form-label col-3 text-lg-right text-left">Full Name</label>
+                <div class="col-9">
+                    <input asp-for="FullName"
+                           class="form-control form-control-lg form-control-solid" />
+                    <span asp-validation-for="FullName" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- ===== EMAIL ===== -->
+            <div class="form-group row">
+                <label class="col-form-label col-3 text-lg-right text-left">Email</label>
+                <div class="col-9">
+                    <input asp-for="Email" id="Email"
+                           class="form-control form-control-lg form-control-solid" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- ===== PHONE ===== -->
+            <div class="form-group row">
+                <label class="col-form-label col-3 text-lg-right text-left">Phone</label>
+                <div class="col-9">
+                    <input asp-for="PhoneNumber" id="PhoneNumber"
+                           class="form-control form-control-lg form-control-solid" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- ===== POSITION ===== -->
+            <div class="form-group row">
+                <label class="col-form-label col-3 text-lg-right text-left">Position</label>
+                <div class="col-9">
+                    <input asp-for="Position"
+                           class="form-control form-control-lg form-control-solid" />
+                    <span asp-validation-for="Position" class="text-danger"></span>
+                </div>
+            </div>
+            <!-- ===== CURRENT DEPARTMENT ===== -->
+            <div class="form-group row">
+                <label class="col-form-label col-3 text-lg-right text-left">
+                    Current Departments
+                </label>
+                <div class="col-9">
+                    <input type="text"
+                           class="form-control"
+                           value="@Model.CurrentDepartments"
+                           disabled />
+                </div>
+            </div>
+
+            <!-- ===== DOB ===== -->
+            <div class="form-group row">
+                <label class="col-form-label col-3 text-lg-right text-left">Date Of Birth</label>
+                <div class="col-9">
+                    <input asp-for="DateOfBirth"
+                           type="date"
+                           class="form-control form-control-lg form-control-solid" />
+                </div>
+            </div>
+
+            <!-- ===== CREATED DATE ===== -->
+            <div class="form-group row">
+                <label class="col-form-label col-3 text-lg-right text-left">Created Date</label>
+                <div class="col-9">
+                    <input asp-for="CreatedDate"
+                           type="date"
+                           class="form-control form-control-lg form-control-solid"
+                           readonly />
+                </div>
+            </div>
+
+            <!-- ===== ACTIVE ===== -->
+            <div class="form-group row">
+                <label class="col-form-label col-3 text-lg-right text-left"></label>
+                <div class="col-9">
+                    <div class="form-check">
+                        <input asp-for="IsActive" class="form-check-input" />
+                        <label asp-for="IsActive" class="form-check-label">
+                            Active
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== FOOTER ===== -->
+            <div class="card-footer px-0 pb-0">
+                <div class="row">
+                    <div class="col-3"></div>
+                    <div class="col-9">
+
+                        <button type="submit"
+                                class="btn btn-light-primary font-weight-bold">
+                            Update
+                        </button>
+
+                        <button type="button"
+                                class="btn btn-danger font-weight-bold"
+                                data-toggle="modal"
+                                data-target="#deleteModal">
+                            Delete
+                        </button>
+
+                        <a asp-action="Index"
+                           class="btn btn-clean font-weight-bold">
+                            Back
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<!-- ===== DELETE FORM ===== -->
+<form id="deleteForm"
+      asp-controller="SupportStaff"
+      asp-action="Delete"
+      method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" value="@Model.StaffId" />
+</form>
+
+<!-- ===== DELETE MODAL ===== -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                Are you sure you want to delete this staff?
+            </div>
+
+            <div class="modal-footer">
+                <button type="submit"
+                        form="deleteForm"
+                        class="btn btn-danger">
+                    Yes, Delete
+                </button>
+
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal">
+                    Cancel
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+
+        setTimeout(function () {
+            var alertBox = document.getElementById("alertMessage");
+            if (alertBox) {
+                alertBox.style.transition = "opacity 0.5s ease";
+                alertBox.style.opacity = "0";
+                setTimeout(function () {
+                    alertBox.remove();
+                }, 500);
+            }
+        }, 3000);
+
+        $("#Email").on("input", function () {
+            $("span[data-valmsg-for='Email']").text("");
+        });
+
+        $("#PhoneNumber").on("input", function () {
+            $("span[data-valmsg-for='PhoneNumber']").text("");
+        });
+
+        $("#Avatar").change(function (event) {
+
+            var input = event.target;
+
+            if (input.files && input.files[0]) {
+
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $(".image-input-wrapper")
+                        .css("background-image", "url('" + e.target.result + "')");
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        });
+
+    </script>
+}

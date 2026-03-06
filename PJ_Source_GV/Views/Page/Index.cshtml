@@ -1,0 +1,231 @@
+﻿@using PJ_Source_GV.Areas.API.Models
+@using PJ_Source_GV.Caption
+@using System.Security.Claims;
+@using Microsoft.AspNetCore.Localization
+@model List<Page>
+
+@{
+    ViewData["Title"] = SharedLocalizer["DanhSachTrang"].Value;
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture?.UICulture?.Name ?? "vi";
+    var isVietnamese = currentCulture == "vi";
+}
+
+<div class="row mt-0 mt-lg-3">
+    <div class="col-xl-12">
+        <div class="card card-custom gutter-b">
+            <div class="card-header flex-wrap py-3">
+                <div class="card-title">
+                    <h3 class="card-label">Danh sách trang</h3>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="mb-3 d-flex justify-content-between">
+                    <button type="button" class="btn btn-primary btn-sm" id="btnExportExcel">
+                        Xuất Excel
+                    </button>
+                    <a href="/page/edit?id=0" class="btn btn-success btn-sm">
+                        Thêm mới
+                    </a>
+                </div>
+                <!--begin: Datatable-->
+                <table class="table table-hover table-bordered table-checkable dataTable" id="dt_page">
+                    <thead>
+                        <tr>
+                            <th>Thao tác</th>
+                            <th>Tên</th>
+                            <th>Alias</th>
+                            <th>Quyền</th>
+                            <th>Ghi chú</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (Page row in Model)
+                        {
+                            if (User.IsInRole("admin"))
+                            {
+                                <tr>
+                                    <td nowrap="nowrap">
+
+                                        @if (User.IsInRole("admin"))
+                                        {
+                                            <a href="/page/edit?id=@row.id" class="btn btn-icon btn-sm btn-warning mr-2" data-toggle="tooltip" title="Cập nhật">
+                                                <i class="flaticon2-edit"></i>
+                                            </a>
+                                            <a class="btn btn-icon btn-sm btn-danger mr-2 confirm-delete" data-title="@row.name" data-id="@row.id" data-toggle="tooltip" title="Xóa">
+                                                <i class="flaticon2-trash"></i>
+                                            </a>
+                                        }
+
+                                    </td>
+                                    <td>
+                                        @row.name
+                                    </td>
+                                    <td>
+                                        @row.alias
+                                    </td>
+                                    <td>
+                                        @row.permission
+                                    </td>
+                                    <td>
+                                        @row.note
+                                    </td>
+
+                                </tr>
+                            }
+
+                        }
+
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th></th>
+                            <th><input type="text" class="form-control form-control-sm" placeholder="@(isVietnamese ? "Tìm kiếm..." : "Search...")" /></th>
+                            <th><input type="text" class="form-control form-control-sm" placeholder="@(isVietnamese ? "Tìm kiếm..." : "Search...")" /></th>
+                            <th><input type="text" class="form-control form-control-sm" placeholder="@(isVietnamese ? "Tìm kiếm..." : "Search...")" /></th>
+                            <th><input type="text" class="form-control form-control-sm" placeholder="@(isVietnamese ? "Tìm kiếm..." : "Search...")" /></th>
+                        </tr>
+                    </tfoot>
+                </table>
+                <!--end: Datatable-->
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+    var table = null;
+    $(document).ready(function () {
+        var currentLang = '@currentCulture';
+        var dtLanguage = currentLang === 'vi' ? {
+            "sProcessing": "Đang xử lý...",
+            "sLengthMenu": "Hiển thị _MENU_ dòng",
+            "sZeroRecords": "Không tìm thấy dữ liệu",
+            "sInfo": "Hiển thị _START_ đến _END_ trong tổng số _TOTAL_ dòng",
+            "sInfoEmpty": "Hiển thị 0 đến 0 trong tổng số 0 dòng",
+            "sInfoFiltered": "(được lọc từ _MAX_ dòng)",
+            "sInfoPostFix": "",
+            "sSearch": "Tìm kiếm:",
+            "sUrl": "",
+            "oPaginate": {
+                "sFirst": "Đầu",
+                "sPrevious": "Trước",
+                "sNext": "Sau",
+                "sLast": "Cuối"
+            }
+        } : {
+            "sProcessing": "Processing...",
+            "sLengthMenu": "Show _MENU_ entries",
+            "sZeroRecords": "No matching records found",
+            "sInfo": "Showing _START_ to _END_ of _TOTAL_ entries",
+            "sInfoEmpty": "Showing 0 to 0 of 0 entries",
+            "sInfoFiltered": "(filtered from _MAX_ total entries)",
+            "sInfoPostFix": "",
+            "sSearch": "Search:",
+            "sUrl": "",
+            "oPaginate": {
+                "sFirst": "First",
+                "sPrevious": "Previous",
+                "sNext": "Next",
+                "sLast": "Last"
+            }
+        };
+
+        table = $('#dt_page').DataTable({
+            language: dtLanguage,
+            responsive: true,
+            rowReorder: {
+                selector: 'td:nth-child(2)'
+            },
+            columnDefs: [
+                { width: "100px", targets: 0 },   // Thao tác
+                { width: "200px", targets: 1 },   // Tên
+                { width: "150px", targets: 2 },   // Alias
+                { width: "80px", targets: 3 },    // Quyền
+                { width: "auto", targets: 4 }     // Ghi chú
+            ],
+            initComplete: function () {
+                // Apply the search
+                this.api().columns().every(function () {
+                    var that = this;
+                    $('input', this.footer()).on('keyup change clear', function () {
+                        if (that.search() !== this.value) {
+                            that.search(this.value).draw();
+                        }
+                    });
+                });
+            }
+        });
+        
+        // Initialize tooltips
+        $('[data-toggle="tooltip"]').tooltip();
+        
+        // Export to Excel
+        $('#btnExportExcel').click(function() {
+            var table = $('#dt_page').DataTable();
+            var headers = [];
+            
+            // Get headers
+            $('#dt_page thead th').each(function() {
+                var text = $(this).text().trim();
+                if (text) {
+                    headers.push(text);
+                }
+            });
+            
+            // Create CSV content
+            var csvContent = headers.join(',') + '\n';
+            
+            // Get all data (including filtered)
+            table.rows({ search: 'applied' }).every(function() {
+                var rowData = [];
+                this.nodes().to$().find('td').each(function(index) {
+                    if (index < headers.length) {
+                        var cellText = $(this).text().trim().replace(/"/g, '""');
+                        rowData.push('"' + cellText + '"');
+                    }
+                });
+                csvContent += rowData.join(',') + '\n';
+            });
+            
+            // Create blob and download
+            var blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            var link = document.createElement('a');
+            var url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'DanhSachTrang_' + new Date().getTime() + '.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    });
+
+    $(document).on("click", ".confirm-delete", function () {
+        var title = $(this).attr("data-title");
+        var id = $(this).attr("data-id");
+        var row = $(this).closest('tr');
+
+        if (confirm("@SharedLocalizer["DeleteConfirm"]")) {
+          
+            $.ajax({
+                url: "/API/Page/DeletePage",
+                type: "post",
+                dataType: 'json',
+                data: {
+                    id: id
+                },
+                success: function (result) {
+                    if (result) {
+                        toastr.success("Xóa dữ liệu thành công!");
+                       
+                        table.row(row).remove().draw();
+                    }
+                }
+            });
+        }
+    });
+</script>
+

@@ -1,0 +1,59 @@
+﻿.breadcrumb-item {
+    color: var(--btn-danger-background-color) !important;
+}
+
+.cursor-not-allow{
+    cursor: not-allowed;
+}
+
+.line-clamp {
+    display: -webkit-box;
+    -webkit-line-clamp: var(--numberLine);
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.bg-calendar-wait {
+    background-color: #dbe2e9 !important;
+}
+
+.bg-calendar-processing {
+    background-color: #fff2cc !important;
+}
+
+.bg-calendar-completed {
+    background-color: #92c27c !important;
+}
+
+.bg-calendar-success {
+    background-color: #4880dd !important;
+}
+
+.so-tay-vc-link {
+    min-height: 40px; // Mobile (default)
+    
+    // Small devices (landscape phones, 576px and up)
+    @media (min-width: 576px) {
+        min-height: 45px;
+    }
+    
+    // Medium devices (tablets, 768px and up)
+    @media (min-width: 768px) {
+        min-height: 50px;
+    }
+    
+    // Large devices (desktops, 992px and up)
+    @media (min-width: 992px) {
+        min-height: 55px;
+    }
+    
+    // Extra large devices (large desktops, 1200px and up)
+    @media (min-width: 1200px) {
+        min-height: 60px;
+    }
+    
+    // XXL devices (larger desktops, 1400px and up)
+    @media (min-width: 1400px) {
+        min-height: 65px;
+    }
+}

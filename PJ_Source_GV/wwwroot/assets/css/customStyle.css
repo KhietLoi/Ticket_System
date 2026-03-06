@@ -1,0 +1,23 @@
+﻿.breadcrumb-item {
+  color: var(--btn-danger-background-color) !important; }
+
+.cursor-not-allow {
+  cursor: not-allowed; }
+
+.line-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: var(--numberLine);
+  -webkit-box-orient: vertical;
+  overflow: hidden; }
+
+.bg-calendar-wait {
+  background-color: #dbe2e9 !important; }
+
+.bg-calendar-processing {
+  background-color: #fff2cc !important; }
+
+.bg-calendar-completed {
+  background-color: #92c27c !important; }
+
+.bg-calendar-success {
+  background-color: #4880dd !important; }

@@ -1,0 +1,24 @@
+﻿@model PJ_Source_GV.Models.SupportDepartment
+@* <style>
+    #detailModal .modal-dialog {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) !important;
+        margin: 0;
+    }
+</style> *@
+<div class="form-group">
+    <label>Department Code</label>
+    <input class="form-control" value="@Model.DepartmentCode" readonly />
+</div>
+
+<div class="form-group">
+    <label>Department Name</label>
+    <input class="form-control" value="@Model.DepartmentName" readonly />
+</div>
+
+<div class="form-group">
+    <label>Created Date</label>
+    <input class="form-control" value="@Model.CreatedDate" readonly />
+</div>

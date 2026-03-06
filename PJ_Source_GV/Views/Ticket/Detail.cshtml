@@ -1,0 +1,67 @@
+﻿@model PJ_Source_GV.ViewModels.TicketDetailVM
+
+<div class="card">
+    <div class="card-header">
+        <h3>Chi tiết yêu cầu</h3>
+    </div>
+
+    <div class="card-body">
+
+        <p><b>Mã đơn:</b> @Model.TicketCode</p>
+
+        <p><b>Phòng ban:</b> @Model.DepartmentName</p>
+
+        <p><b>Loại yêu cầu:</b> @Model.TaskName</p>
+
+        <p><b>Trạng thái:</b> @Model.Status</p>
+
+      
+
+        <p>
+            <b>Dự kiến hoàn thành:</b>
+            @(Model.ExpectedCompleteDate?.ToString("dd/MM/yyyy") ?? "Chưa xác định")
+        </p>
+
+        
+
+        <p><b>Ngày tạo:</b> @Model.CreatedDate.ToString("dd/MM/yyyy HH:mm")</p>
+
+        <hr />
+
+        <p><b>Mô tả:</b></p>
+
+        <div class="border p-3">
+            @Model.Description
+        </div>
+
+        <hr />
+
+        <h5>File đính kèm</h5>
+
+        @if (Model.Attachment != null)
+        {
+            <div class="mt-3">
+
+                <a href="@Model.Attachment.FilePath" target="_blank">
+                    <img src="@Model.Attachment.FilePath"
+                         class="img-fluid border rounded"
+                         style="max-width:300px;" />
+                </a>
+
+                
+
+            </div>
+        }
+        else
+        {
+            <p class="text-muted">Không có file đính kèm</p>
+        }
+
+        <br />
+
+        <a href="/Ticket" class="btn btn-secondary">
+            Quay lại
+        </a>
+
+    </div>
+</div>
