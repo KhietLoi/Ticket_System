@@ -278,6 +278,8 @@ namespace PJ_Source_GV.Controllers
             return RedirectToAction("Detail_Manager", new { id = ticketId });
         }
 
+
+
     }
 }
 
