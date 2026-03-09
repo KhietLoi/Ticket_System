@@ -12,6 +12,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Serialization;
 using PJ_Source_GV.Caption;
 using PJ_Source_GV.FunctionSupport;
+using PJ_Source_GV.Hubs;
 using PJ_Source_GV.Models;
 using PJ_Source_GV.Services;
 using SSOLibCore;
@@ -36,6 +37,10 @@ namespace PJ_Source_GV
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+
+            //SignalR
+            services.AddSignalR();
             //BEGIN EMAIL----
             services.Configure<EmailSettings>(
             Configuration.GetSection("EmailSettings"));
@@ -121,8 +126,15 @@ namespace PJ_Source_GV
                 app.UseExceptionHandler("/Home/Error");
             }
 
-            app.UseStaticFiles();
 
+
+
+            app.UseStaticFiles();
+            //SignalR
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<TicketHub>("/tickethub");
+            });
             app.UseRequestLocalization(app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>().Value);
 
             app.UseMvc(routes =>

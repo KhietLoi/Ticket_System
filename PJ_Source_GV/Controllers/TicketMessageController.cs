@@ -1,7 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+//SignalR
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using PJ_Source_GV.Hubs;
 using PJ_Source_GV.Models;
 using PJ_Source_GV.Repositories;
 using PJ_Source_GV.Services;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace PJ_Source_GV.Controllers
@@ -10,9 +18,13 @@ namespace PJ_Source_GV.Controllers
     {
         private readonly EmailService _emailService;
 
-        public TicketMessageController(EmailService emailService)
+        private readonly IHubContext<TicketHub> _hubContext;
+
+        public TicketMessageController(EmailService emailService, IHubContext<TicketHub> hubContext)
         {
             _emailService = emailService;
+            _hubContext = hubContext;
+
         }
 
         //Load chat
@@ -43,7 +55,7 @@ namespace PJ_Source_GV.Controllers
              return Ok();
          }*/
         [HttpPost]
-        public async Task<IActionResult> SendMessage(int ticketId, string message)
+        public async Task<IActionResult> SendMessage(int ticketId, string message, List<IFormFile>files)
         {
             TicketMessage msg = new TicketMessage
             {
@@ -54,7 +66,34 @@ namespace PJ_Source_GV.Controllers
                 IsStaff = true
             };
 
-            TicketMessageRes.InsertMessage(msg);
+            //Insert message and get the generated messageId
+            int messageId = TicketMessageRes.InsertMessage(msg);
+
+            //=====UPLOAD FILE =====
+            if (files != null && files.Count > 0)
+            {
+                foreach (var file in files)
+                {
+                    if (file.Length > 0)
+                    {
+                        string newFileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+
+                        string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Uploads/ticket", newFileName);
+                       
+                        using (var stream = new FileStream(path, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+                        TicketMessageRes.InsertAttachment(
+                            messageId,
+                            file.FileName,
+                            "/Uploads/ticket/" + newFileName
+                        );  
+
+                    }
+                }
+            }
+
 
             // ===== LẤY THÔNG TIN TICKET =====
             var ticket = TicketRes.GetTicketById(ticketId);
@@ -83,6 +122,12 @@ namespace PJ_Source_GV.Controllers
         IT Support
     ";
 
+
+            await _hubContext.Clients
+            .Group(ticketId.ToString())
+            .SendAsync("ReceiveMessage");
+
+
             await _emailService.SendEmailAsync(
                 "khietloi2004.dev.net@gmail.com",
                 subject,
@@ -90,11 +135,12 @@ namespace PJ_Source_GV.Controllers
             );
 
             return Ok();
+
         }
 
 
         [HttpPost]
-        public IActionResult SendMessageUser(int ticketId, string message, string email)
+        public async Task<IActionResult> SendMessageUser(int ticketId, string message, string email, List<IFormFile> files )
         {
             TicketMessage msg = new TicketMessage
             {
@@ -104,9 +150,39 @@ namespace PJ_Source_GV.Controllers
                 Message = message,
                 IsStaff = false
             };
+            //Insert message and get the generated messageId
+            int messageId = TicketMessageRes.InsertMessage(msg);
+            if (files != null && files.Count > 0)
+            {
+                foreach (var file in files)
+                {
+                    if (file.Length > 0)
+                    {
+                        string newFileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
 
-            TicketMessageRes.InsertMessage(msg);
+                        string path = Path.Combine(
+                            Directory.GetCurrentDirectory(),
+                            "wwwroot/Uploads/ticket",
+                            newFileName
+                        );
 
+                        using (var stream = new FileStream(path, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+
+                        TicketMessageRes.InsertAttachment(
+                            messageId,
+                            file.FileName,
+                            "/Uploads/ticket/" + newFileName
+                        );
+                    }
+                }
+            }
+
+            await _hubContext.Clients
+                .Group(ticketId.ToString())
+                .SendAsync("ReceiveMessage");
             return Ok();
         }
 
