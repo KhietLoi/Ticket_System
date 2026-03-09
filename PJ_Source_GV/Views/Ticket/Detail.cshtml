@@ -1,5 +1,59 @@
 ﻿@model PJ_Source_GV.ViewModels.TicketDetailVM
 
+<style>
+    .chat-toggle {
+        background: #007bff;
+        color: white;
+        padding: 10px;
+        cursor: pointer;
+        border-radius: 5px;
+        margin-top: 20px;
+        font-weight: 600;
+    }
+
+     .chat-toggle:hover {
+        background: #0056b3;
+     }
+
+    .ticket-comment {
+        border-radius: 6px;
+        padding: 12px;
+        margin-bottom: 12px;
+        border: 1px solid #ddd;
+    }
+
+    .staff-comment {
+        background: #f8f9fa;
+        border-left: 4px solid #6c757d;
+    }
+
+    .user-comment {
+        background:  #e7f3ff;
+        border-left: 4px solid #007bff;
+       
+    }
+
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 6px;
+    }
+
+    .comment-user {
+        color: #2c3e50;
+    }
+
+    .comment-time {
+        color: #888;
+        font-size: 12px;
+    }
+
+    .comment-body {
+        font-size: 14px;
+    }
+</style>
 <div class="card">
     <div class="card-header">
         <h3>Chi tiết yêu cầu</h3>
@@ -32,38 +86,40 @@
 
         <hr />
         <hr />
+        <div class="chat-toggle" onclick="toggleChat()">
+            💬 Trao đổi với bộ phận hỗ trợ
+        </div>
 
-        <h4>Trao đổi với bộ phận hỗ trợ</h4>
-
-        <div id="chatBox"
-             style="height:300px;
+        <div id="chatPanel" style="display:none"; border-top:1px solid #ddd; padding-top:15px>
+            <div id="chatBox"
+                 style="height:800px;
              overflow-y:auto;
              border:1px solid #ddd;
              padding:10px;
              background:#fafafa;">
+            </div>
+
+            <div class="mt-3 d-flex">
+
+                <input id="txtMessage"
+                       class="form-control"
+                       placeholder="Nhập nội dung..." />
+
+                <!-- Upload file -->
+                <input type="file"
+                       id="fileUpload"
+                       class="form-control ml-2"
+                       multiple />
+
+                <button type="button"
+                        class="btn btn-primary ml-2"
+                        onclick="sendMessage()">
+                    Gửi
+                </button>
+
+            </div>
         </div>
 
-        <div class="mt-3 d-flex">
-
-            <input id="txtMessage"
-                   class="form-control"
-                   placeholder="Nhập nội dung..." />
-
-            <!-- Upload file -->
-            <input type="file"
-                   id="fileUpload"
-                   class="form-control ml-2"
-                   multiple />
-
-            <button type="button"
-                    class="btn btn-primary ml-2"
-                    onclick="sendMessage()">
-                Gửi
-            </button>
-
-        </div>
-
-        <br />
 
         <a href="/Ticket" class="btn btn-secondary">
             Quay lại
@@ -71,120 +127,7 @@
 
     </div>
 </div>
-@* 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/1.2.0/signalr.min.js">
 
-
-    //Thêm kết nối SignalR để nhận tin nhắn mới ngay lập tức mà không cần phải load lại trang
-    const connection = new signalR.HubConnectionBuilder()
-    .withUrl("/tickethub")
-    .build();
-
-
-    function loadMessages() {
-
-        $.get('/TicketMessage/GetMessages?ticketId=@Model.TicketId', function (data) {
-
-            $("#chatBox").html("");
-
-                data.forEach(function (msg) {
-
-        let align = msg.IsStaff ? "left" : "right";
-        let color = msg.IsStaff ? "#f8f9fa" : "#d1ecf1";
-
-        let attachmentsHtml = "";
-
-        if (msg.Attachments && msg.Attachments.length > 0) {
-            //Nếu file ảnh thi  hiển thị ảnh, còn file khác thì hiển thị link tải
-            msg.Attachments.forEach(function(file){
-
-                attachmentsHtml += `
-                    <div style="margin-top:5px">
-                        📎 <a href="${file.FilePath}" target="_blank">
-                            ${file.FileName}
-                        </a>
-                    </div>
-                `;
-
-            });
-
-        }
-
-        $("#chatBox").append(`
-            <div style="margin-bottom:10px; text-align:${align}">
-                <div style="
-                    display:inline-block;
-                    background:${color};
-                    padding:8px;
-                    border-radius:10px;
-                    max-width:60%">
-
-                    <b>${msg.SenderName}</b><br/>
-
-                    ${msg.Message ?? ""}
-
-                    ${attachmentsHtml}
-
-                </div>
-            </div>
-        `);
-
-    });
-
-            $("#chatBox").scrollTop($("#chatBox")[0].scrollHeight);
-
-        });
-
-    }
-
-    function sendMessage() {
-
-        let message = $("#txtMessage").val();
-        let files = $("#fileUpload")[0].files;
-
-        // không cho gửi nếu không có gì
-        if (message.trim() === "" && files.length === 0) return;
-
-        let formData = new FormData();
-
-        formData.append("TicketId", @Model.TicketId);
-        formData.append("Message", message);
-        formData.append("Email", "@Model.CreatedByEmail");
-
-        for (let i = 0; i < files.length; i++) {
-            formData.append("files", files[i]);
-        }
-
-        $.ajax({
-            url: '/TicketMessage/SendMessageUser',
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function () {
-
-                $("#txtMessage").val("");
-                $("#fileUpload").val("");
-
-                loadMessages();
-            }
-        });
-
-    }
-
-    $(document).ready(function () {
-
-        loadMessages();
-
-        setInterval(function () {
-
-            loadMessages();
-
-        }, 3000);
-
-    });
-
-</script> *@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/aspnet-signalr/1.0.0/signalr.min.js"></script>
 <script>
@@ -208,7 +151,23 @@
 
                 if (msg.Attachments && msg.Attachments.length > 0) {
 
-                    msg.Attachments.forEach(function(file){
+                msg.Attachments.forEach(function(file){
+
+                    let ext = file.FileName.split('.').pop().toLowerCase();
+
+                    let imageExt = ["jpg","jpeg","png","gif","webp"];
+
+                    if(imageExt.includes(ext)){
+
+                        attachmentsHtml += `
+                            <div style="margin-top:5px">
+                                <img src="${file.FilePath}"
+                                     style="max-width:200px; border-radius:6px; cursor:pointer"
+                                     onclick="window.open('${file.FilePath}')"/>
+                            </div>
+                        `;
+
+                    }else{
 
                         attachmentsHtml += `
                             <div style="margin-top:5px">
@@ -218,28 +177,27 @@
                             </div>
                         `;
 
-                    });
+                    }
+
+                });
 
                 }
 
                 $("#chatBox").append(`
-                    <div style="margin-bottom:10px; text-align:${align}">
-                        <div style="
-                            display:inline-block;
-                            background:${color};
-                            padding:8px;
-                            border-radius:10px;
-                            max-width:60%">
+                <div class="ticket-comment ${msg.IsStaff ? 'staff-comment' : 'user-comment'}">
 
-                            <b>${msg.SenderName}</b><br/>
-
-                            ${msg.Message ?? ""}
-
-                            ${attachmentsHtml}
-
-                        </div>
+                    <div class="comment-header">
+                        <span class="comment-user">${msg.SenderName}</span>
+                        <span class="comment-time">${msg.CreatedDate}</span>
                     </div>
-                `);
+
+                    <div class="comment-body">
+                        ${msg.Message ?? ""}
+                        ${attachmentsHtml}
+                    </div>
+
+                </div>
+            `);
 
             });
 
@@ -299,5 +257,20 @@
         loadMessages();
 
     });
+
+
+        //Mở rộng chat:
+        function toggleChat(){
+
+        let panel = $("#chatPanel");
+
+        if(panel.is(":visible")){
+            panel.slideUp();
+        }else{
+            panel.slideDown();
+            loadMessages();
+        }
+
+    }
 
 </script>

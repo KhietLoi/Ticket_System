@@ -351,5 +351,22 @@ namespace PJ_Source_GV.Repositories
 
 
 
+        //Hoàn thành xử lí ticket:
+        public static void CompleteTicket(int ticketId, int staffId)
+        {
+            using (SqlConnection conn = new SqlConnection(ConstValue.ConnectionString))
+            {
+                using (SqlCommand cmd = new SqlCommand("sp_Ticket_Complete", conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@TicketId", ticketId);
+                    cmd.Parameters.AddWithValue("@StaffId", staffId);
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+
+        }
     }
 }

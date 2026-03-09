@@ -230,7 +230,7 @@ namespace PJ_Source_GV.Controllers
             Console.WriteLine(ticketId);
             Console.WriteLine(assignedStaffId);
 
-            if (assignedStaffId == null)    
+            if (assignedStaffId == null)
             {
                 TempData["Error"] = "Vui lòng chọn staff.";
                 return RedirectToAction("Detail_Manager", new { id = ticketId });
@@ -249,10 +249,10 @@ namespace PJ_Source_GV.Controllers
             string expectedDate = ExpectedCompleteDate.ToString("dd/MM/yyyy");
             /**Lấy staff name**/
             var staff = SupportStaffRes.GetById(assignedStaffId.Value);
-            string staffName = staff?.FullName?? "Support Team";
+            string staffName = staff?.FullName ?? "Support Team";
 
             /**Đọc template Name**/
-           // Đọc template HTML
+            // Đọc template HTML
             string templatePath = Path.Combine(
                 Directory.GetCurrentDirectory(),
                 "Templates/Emails/TicketAssigned.html"
@@ -279,7 +279,62 @@ namespace PJ_Source_GV.Controllers
         }
 
 
+        //Cập nhật hoàn thành ticket:
 
+        [HttpPost]
+        public async Task<IActionResult> CompleteTicket(int ticketId)
+        {
+            var ticket = TicketRes.GetTicketById(ticketId);
+
+            if (ticket.Status != TicketStatus.Processing)
+            {
+                TempData["Error"] = "Chỉ có thể hoàn thành khi ticket đang xử lý.";
+                return RedirectToAction("Detail_Manager", new { id = ticketId });
+            }
+
+            int staffId = 1; //Tạm  để  sau này sửa thành lấy staff đang đăng nhập, hoặc staff đã được assign
+
+            TicketRes.CompleteTicket(ticketId, staffId);
+
+
+            //Lấy thông tin ticket để gửi email:
+            string ticketCode = ticket.TicketCode;
+            string createdEmail = ticket.CreatedByEmail;
+
+            /**Lấy staff name**/
+            var staff = SupportStaffRes.GetById(staffId);
+            string staffName = staff?.FullName ?? "Support Team";
+            /** Ngày hoàn thành**/
+            string completedDate = DateTime.Now.ToString("dd/MM/yyyy");
+
+            /**Đọc template Email**/
+            string templatePath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "Templates/Emails/TicketCompleted.html"
+            );
+
+            string body = System.IO.File.ReadAllText(templatePath);
+
+            /** Replace dữ liệu **/
+            body = body.Replace("{{TicketCode}}", ticketCode)
+                       .Replace("{{StaffName}}", staffName)
+                       .Replace("{{CompletedDate}}", completedDate);
+
+            string subject = $"[TDTU] Ticket {ticketCode} đã được hoàn thành";
+
+
+            await _emailService.SendEmailAsync(
+                "khietloi2004.dev.net@gmail.com",   // email người tạo ticket
+                subject,
+                body
+            );
+
+
+
+            TempData["Success"] = "Ticket đã hoàn thành.";
+
+            return RedirectToAction("Detail_Manager", new { id = ticketId });
+        }
     }
 }
 
