@@ -25,7 +25,8 @@ namespace PJ_Source_GV.ViewModels
 
         public DateTime CreatedDate { get; set; }
 
-        
+        public int? AssignedToStaffId { get; set; } //ID NG ĐC PHÂN công
+
         public TicketAttachment Attachment { get; set; }
 
     }

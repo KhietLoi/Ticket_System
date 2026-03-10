@@ -1,0 +1,175 @@
+﻿@model PJ_Source_GV.Models.SupportTask
+
+<div class="card card-custom">
+
+    <!-- ===== HEADER ===== -->
+    <div class="card-header">
+        <h3 class="card-title">Support Task Detail</h3>
+    </div>
+
+    <!-- ===== FORM UPDATE ===== -->
+    <form asp-action="Details" method="post">
+        <div class="card-body">
+
+            <!-- ALERT MESSAGE -->
+            @if (TempData["Success"] != null)
+            {
+                <div id="alertMessage" class="alert alert-success fade show">
+                    @TempData["Success"]
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div id="alertMessage" class="alert alert-danger fade show">
+                    @TempData["Error"]
+                </div>
+            }
+
+            <input type="hidden" asp-for="TaskId" />
+
+            <div class="alert alert-light-primary">
+                Bạn có thể chỉnh sửa thông tin Support Task tại đây.
+            </div>
+
+            <!-- TASK NAME -->
+            <div class="form-group">
+                <label asp-for="TaskName"></label>
+                <input asp-for="TaskName" class="form-control" />
+                <span asp-validation-for="TaskName" class="text-danger"></span>
+            </div>
+
+            <!-- DEPARTMENT -->
+            <div class="form-group">
+                <label>Department</label>
+
+                <select asp-for="DepartmentId" class="form-control">
+
+                    <option value="">-- Select Department --</option>
+
+                    @foreach (var dept in ViewBag.Departments)
+                    {
+                        <option value="@dept.DepartmentId">
+                            @dept.DepartmentName
+                        </option>
+                    }
+
+                </select>
+            </div>
+
+            <!-- MAIN STAFF -->
+            <div class="form-group">
+                <label>Main Staff</label>
+
+                <select asp-for="MainStaffId" class="form-control">
+
+                    <option value="">-- Select Staff --</option>
+
+                    @foreach (var staff in ViewBag.Staffs)
+                    {
+                        <option value="@staff.StaffId">
+                            @staff.FullName
+                        </option>
+                    }
+
+                </select>
+            </div>
+
+            <!-- CREATED DATE -->
+            <div class="form-group">
+                <label asp-for="CreatedDate"></label>
+                <input asp-for="CreatedDate"
+                       type="date"
+                       asp-format="{0:yyyy-MM-dd}"
+                       class="form-control" />
+            </div>
+
+        </div>
+
+        <div class="card-footer">
+
+            <button type="submit"
+                    class="btn btn-success mr-2">
+                Update
+            </button>
+
+            <button type="button"
+                    class="btn btn-danger mr-2"
+                    data-toggle="modal"
+                    data-target="#deleteModal">
+                Delete
+            </button>
+
+            <a asp-action="Index"
+               class="btn btn-secondary">
+                Back
+            </a>
+
+        </div>
+    </form>
+
+</div>
+
+<!-- ===== DELETE MODAL ===== -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+
+                <button type="button"
+                        class="close"
+                        data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                Are you sure you want to delete this support task?
+            </div>
+
+            <div class="modal-footer">
+
+                <form asp-action="Delete" method="post">
+
+                    <input type="hidden"
+                           name="id"
+                           value="@Model.TaskId" />
+
+                    <button type="submit"
+                            class="btn btn-danger">
+                        Yes, Delete
+                    </button>
+
+                </form>
+
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal">
+                    Cancel
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+
+    //HIỆN THÔNG BÁO
+    setTimeout(function () {
+
+        var alert = document.getElementById("alertMessage");
+
+        if (alert) {
+            alert.style.transition = "opacity 0.5s ease";
+            alert.style.opacity = "0";
+
+            setTimeout(() => alert.remove(), 500);
+        }
+
+    }, 3000);
+
+</script>

@@ -171,7 +171,7 @@
                 taskSelect.append('<option>Loading...</option>');
 
                 $.ajax({
-                    url: '/SupportTask/GetTaskByDepartment',
+                    url: '/SupportTaskApi/GetTaskByDepartment',
                     type: 'GET',
                     data: { departmentId: departmentId },
                     success: function (data) {

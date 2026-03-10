@@ -103,7 +103,7 @@ namespace PJ_Source_GV.Repositories
 
                                 Description = reader["Description"]?.ToString(),
 
-                                Status = reader["Status"]?.ToString(),
+                                Status = (PJ_Source_GV.Enums.TicketStatus)Convert.ToInt32(reader["Status"]),
 
                                 ExpectedCompleteDate = reader["ExpectedCompleteDate"] != DBNull.Value
                                     ? Convert.ToDateTime(reader["ExpectedCompleteDate"])

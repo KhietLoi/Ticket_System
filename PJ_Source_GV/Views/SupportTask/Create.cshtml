@@ -1,0 +1,167 @@
+﻿@model PJ_Source_GV.Models.SupportTask
+
+<div class="card card-custom">
+
+    <!-- HEADER -->
+    <div class="card-header">
+        <h3 class="card-title">Create Support Task</h3>
+    </div>
+
+    <form asp-action="Create" method="post">
+
+        <div class="card-body">
+
+            <!-- ALERT -->
+            @if (TempData["Success"] != null)
+            {
+                <div id="alertMessage" class="alert alert-success fade show">
+                    @TempData["Success"]
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div id="alertMessage" class="alert alert-danger fade show">
+                    @TempData["Error"]
+                </div>
+            }
+
+            <div class="alert alert-light-primary">
+                Nhập thông tin để tạo Support Task mới.
+            </div>
+
+            <!-- TASK NAME -->
+            <div class="form-group">
+                <label>Task Name</label>
+                <input asp-for="TaskName"
+                       class="form-control"
+                       placeholder="Nhập tên task" />
+            </div>
+
+            <!-- DEPARTMENT -->
+            <div class="form-group">
+                <label>Department</label>
+
+                <select asp-for="DepartmentId"
+                        id="DepartmentId"
+                        class="form-control"
+                        asp-items="@(new SelectList(ViewBag.Departments, "DepartmentId", "DepartmentName"))">
+
+                    <option value="">-- Chọn Department --</option>
+
+                </select>
+            </div>
+
+            <!-- MAIN STAFF -->
+            <div class="form-group">
+                <label>Main Staff</label>
+
+                <select asp-for="MainStaffId"
+                        id="MainStaffId"
+                        class="form-control"
+                        disabled>
+
+                    <option value="">-- Chọn Staff --</option>
+
+                </select>
+            </div>
+
+        </div>
+
+        <!-- FOOTER -->
+        <div class="card-footer">
+
+            <button type="submit" class="btn btn-success mr-2">
+                Create
+            </button>
+
+            <a asp-action="Index" class="btn btn-secondary">
+                Back
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+@section Scripts {
+
+    <script>
+
+        $(document).ready(function () {
+
+            const departmentSelect = $("#DepartmentId");
+            const staffSelect = $("#MainStaffId");
+
+            departmentSelect.change(function () {
+
+                const departmentId = $(this).val();
+
+                staffSelect.empty()
+                    .append('<option value="">-- Chọn Staff --</option>')
+                    .prop("disabled", true);
+
+                if (!departmentId)
+                    return;
+
+                staffSelect.append('<option>Loading staff...</option>');
+
+                $.ajax({
+                    url: "/SupportStaffApi/GetStaffByDepartment",
+                    type: "GET",
+                    data: { departmentId: departmentId },
+
+                    success: function (data) {
+
+                        staffSelect.empty()
+                                   .append('<option value="">-- Chọn Staff --</option>');
+
+                        if (!data || data.length === 0) {
+
+                            staffSelect.append('<option disabled>Không có staff</option>');
+                            return;
+                        }
+
+                        data.forEach(function (staff) {
+
+                            staffSelect.append(
+                                `<option value="${staff.StaffId}">
+                                    ${staff.FullName} - ${staff.Email}
+                                 </option>`
+                            );
+
+                        });
+
+                        staffSelect.prop("disabled", false);
+                    },
+
+                    error: function () {
+                        alert("Không thể load danh sách staff.");
+                    }
+
+                });
+
+            });
+
+
+            // AUTO HIDE ALERT
+            setTimeout(function () {
+
+                const alert = document.getElementById("alertMessage");
+
+                if (alert) {
+
+                    alert.style.transition = "opacity 0.5s ease";
+                    alert.style.opacity = "0";
+
+                    setTimeout(() => alert.remove(), 500);
+                }
+
+            }, 3000);
+
+        });
+
+    </script>
+
+}

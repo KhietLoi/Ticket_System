@@ -63,25 +63,19 @@
 
                         <td>@item.TicketCode</td>
                         <td>@item.TaskName</td>
-
+                       
                         <td>
-                            @if (item.Status == "Completed")
+                            @if (item.Status == PJ_Source_GV.Enums.TicketStatus.Received)
                             {
-                                <span class="badge badge-success">
-                                    Đã xử lý
-                                </span>
+                                <span class="badge bg-primary">Received</span>
                             }
-                            else if (item.Status == "Processing")
+                            else if (item.Status == PJ_Source_GV.Enums.TicketStatus.Processing)
                             {
-                                <span class="badge badge-warning">
-                                    Đang xử lý
-                                </span>
+                                <span class="badge bg-warning">Processing</span>
                             }
                             else
                             {
-                                <span class="badge badge-secondary">
-                                    Đã tiếp nhận
-                                </span>
+                                <span class="badge bg-success">Completed</span>
                             }
                         </td>
 

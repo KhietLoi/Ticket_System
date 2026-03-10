@@ -279,12 +279,12 @@ namespace PJ_Source_GV.Controllers
         }
 
 
-        //Cập nhật hoàn thành ticket:
+        //Cập nhật hoàn thành ticket: (Danh cho staff)
 
         [HttpPost]
         public async Task<IActionResult> CompleteTicket(int ticketId)
         {
-            var ticket = TicketRes.GetTicketById(ticketId);
+            var ticket = TicketRes.GetById_Manager(ticketId);
 
             if (ticket.Status != TicketStatus.Processing)
             {
@@ -292,7 +292,9 @@ namespace PJ_Source_GV.Controllers
                 return RedirectToAction("Detail_Manager", new { id = ticketId });
             }
 
-            int staffId = 1; //Tạm  để  sau này sửa thành lấy staff đang đăng nhập, hoặc staff đã được assign
+           // int staffId = 1; //Tạm  để  sau này sửa thành lấy staff đang đăng nhập, hoặc staff đã được assign
+            //Lấy staff đã được assign vào:
+            int staffId = ticket.AssignedToStaffId ?? 0;
 
             TicketRes.CompleteTicket(ticketId, staffId);
 
